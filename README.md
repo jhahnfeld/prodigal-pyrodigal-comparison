@@ -69,10 +69,6 @@ optional arguments:
 ```
 
 ## Examples
-* Download 50 test genomes
-```bash
-wget -i test_genomes.txt
-```
 
 * Input: single compressed genome
 ```bash
@@ -82,6 +78,11 @@ wget -i test_genomes.txt
 * Input: multiple genomes
 ```bash
 ./compare.py --genome /path/to/*.fasta --prodigal /path/to/binary/prodigal
+```
+
+* To download 50 test genomes you can use:
+```bash
+wget -i test_genomes.txt -P /some/path/
 ```
 
 
