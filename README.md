@@ -9,6 +9,7 @@ A Python script for the comparison of Prodigal and Pyrodigal predictions.
 - [Usage](#usage)
 - [Examples](#examples)
 - [Input & Output](#input-and-output)
+- [Results](#results)
 - [License](#license)
 
 ## Background
@@ -92,6 +93,11 @@ wget -i test_genomes.txt
 * A short summary of each comparison is printed to stdout: `Hits genome=GCF_000006765: prodigal=5681, pyrodigal=5681, equal=True`
 * The `comparison` output directory contains a mismatches.tsv TSV file with differing predictions.
 * The `comparison/tmp` directory contains the Prodigal train file and GFF output for each used genome.
+
+
+## Results
+The results in the results directory were created using Prodigal (commit 31b300a99a39964893057128ea10338e9a26bd6c, branch GoogleImport) 
+and Pyrodigal v1.1.2.
 
 
 ## License
