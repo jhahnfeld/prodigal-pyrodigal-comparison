@@ -55,7 +55,7 @@ conda install -c conda-forge -c bioconda biopython xopen pyrodigal
 
 ## Usage
 ```bash
-usage: compare.py [-h] [--genome GENOME [GENOME ...]] [--prodigal PRODIGAL] [--output OUTPUT]
+usage: compare.py [-h] [--genome GENOME [GENOME ...]] [--prodigal PRODIGAL] [--closed] [--output OUTPUT]
 
 Compare CDS predictions of Prodigal to the predictions of Pyrodigal and save the differences in a TSV file.
 
@@ -65,8 +65,10 @@ optional arguments:
                         Input genomes (/some/path/*.fasta)
   --prodigal PRODIGAL, -p PRODIGAL
                         Path to a newly compiled Prodigal binary.
+  --closed, -c          Closed ends. Do not allow genes to run off edges.
   --output OUTPUT, -o OUTPUT
                         Output path (default="./comparison")
+
 ```
 
 ## Examples
