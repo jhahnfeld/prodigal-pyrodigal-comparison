@@ -12,21 +12,24 @@ from xopen import xopen
 from Bio import SeqIO
 
 
-def prodigal_train(genome: Path, train_file: Path, prodigal_bin: Path, transl_table: int = 11):
+def prodigal_train(genome: Path, train_file: Path, prodigal_bin: Path, closed: bool, transl_table: int = 11):
     """
     Create a Prodigal training file.
     :param genome: Path to the genome
     :param train_file: Path to the training file
     :param prodigal_bin: Path to the prodigal binary
+    :param closed: Closed ends.
     :param transl_table: Translation table (11)
     """
     cmd = [
         prodigal_bin,
         '-i', str(genome),
         '-g', str(transl_table),
-        '-t', str(train_file),
-        '-c'
+        '-t', str(train_file)
     ]
+    if closed:
+        cmd.append('-c')
+
     proc = sp.run(
         cmd,
         env=os.environ.copy(),
@@ -39,10 +42,11 @@ def prodigal_train(genome: Path, train_file: Path, prodigal_bin: Path, transl_ta
         raise Exception(f'prodigal error! error code: {proc.returncode}')
 
 
-def pyrodigal_train(genome: Path, transl_table: int = 11) -> pyrodigal.OrfFinder:
+def pyrodigal_train(genome: Path, closed: bool, transl_table: int = 11) -> pyrodigal.OrfFinder:
     """
     Train Pyrodigal
     :param genome: Path to the genome
+    :param closed: Closed ends.
     :param transl_table: Translation table (11)
     :return: pyrodigal.OrfFinder instance
     """
@@ -51,19 +55,20 @@ def pyrodigal_train(genome: Path, transl_table: int = 11) -> pyrodigal.OrfFinder
         for record in SeqIO.parse(f, 'fasta'):
             sequences.append(str(record.seq))
 
-    orf_finder = pyrodigal.OrfFinder(closed=True)
+    orf_finder = pyrodigal.OrfFinder(closed=closed)
     orf_finder.train(*sequences, translation_table=transl_table)
 
     return orf_finder
 
 
-def prodigal_predict(genome: Path, train_file: Path, gff_file: Path, prodigal_bin: Path, transl_table: int = 11):
+def prodigal_predict(genome: Path, train_file: Path, gff_file: Path, prodigal_bin: Path, closed: bool, transl_table: int = 11):
     """
     Predict CDS with Prodigal
     :param genome: Path to the genome (fasta)
     :param train_file: Path to the training file
     :param gff_file: Path to GFF output file
     :param prodigal_bin: Path to the prodigal binary
+    :param closed: Closed ends.
     :param transl_table: Translation table
     """
     cmd = [
@@ -71,10 +76,12 @@ def prodigal_predict(genome: Path, train_file: Path, gff_file: Path, prodigal_bi
         '-i', str(genome),
         '-g', str(transl_table),
         '-t', str(train_file),
-        '-c',
         '-f', 'gff',
         '-o', str(gff_file)
     ]
+    if closed:
+        cmd.append('-c')
+
     proc = sp.run(
         cmd,
         env=os.environ.copy(),
@@ -215,14 +222,16 @@ def parse_arguments():
     parser.add_argument('--genome', '-g', type=Path, nargs='+', action='append', help='Input genomes (/some/path/*.fasta)')
     parser.add_argument('--prodigal', '-p', type=Path, default=Path('/vol/sorf/bakta/Prodigal/bin/prodigal'),
                         help='Path to a newly compiled Prodigal binary.')
+    parser.add_argument('--closed', '-c', action='store_true', help='Closed ends. Do not allow genes to run off edges.')
     parser.add_argument('--output', '-o', type=Path, default=Path('./'), help='Output path (default="./comparison")')
     args = parser.parse_args()
-    return args.genome, args.prodigal, args.output
+    return args.genome, args.prodigal, args.closed, args.output
 
 
 def main():
-    genomes, prodigal_bin, out_path = parse_arguments()
+    genomes, prodigal_bin, closed, out_path = parse_arguments()
     out_path.resolve()
+    print(f'Genomes closed={closed}')
 
     tsv_file = open(out_path.joinpath('mismatches.tsv'), mode='w')
     tsv_writer = csv.writer(tsv_file, delimiter='\t', lineterminator='\n')
@@ -243,16 +252,19 @@ def main():
         prodigal_train_file = tmp_path.joinpath(f'{prefix}.prodigal.trn')
         prodigal_train(genome=genome,
                        train_file=prodigal_train_file,
-                       prodigal_bin=prodigal_bin)
+                       prodigal_bin=prodigal_bin,
+                       closed=closed)
         # Train pyrodigal
-        orf_finder = pyrodigal_train(genome)
+        orf_finder = pyrodigal_train(genome=genome,
+                                     closed=closed)
 
         # Predict prodigal
         prodigal_gff_file = tmp_path.joinpath(f'{prefix}.prodigal.gff')
         prodigal_predict(genome=genome,
                          train_file=prodigal_train_file,
                          gff_file=prodigal_gff_file,
-                         prodigal_bin=prodigal_bin)
+                         prodigal_bin=prodigal_bin,
+                         closed=closed)
         prodigal_genes: set[dict] = parse_gff_output(gff_path=prodigal_gff_file)
         # Predict pyrodigal
         pyrodigal_genes: set[dict] = pyrodigal_predict(orf_finder=orf_finder,
