@@ -194,7 +194,7 @@ def compare_mismatches(prodigal_genes: set[namedtuple], pyrodigal_genes: set[nam
     for main_cds in longer:
         for candidate_cds in shorter:
             if main_cds.id == candidate_cds.id and main_cds.strand == candidate_cds.strand:  # matching contig AND strand
-                if main_cds.stop == candidate_cds.stop:  # matching stop
+                if main_cds.stop == candidate_cds.stop or main_cds.start == candidate_cds.start:  # matching stop or start
                     mismatch = {'prodigal': main_cds,
                                 'pyrodigal': candidate_cds,
                                 'strand': main_cds.strand} if prodigal_more_hits else {'prodigal': candidate_cds,
