@@ -21,6 +21,9 @@ def prodigal_train(genome: Path, train_file: Path, prodigal_bin: Path, closed: b
     :param closed: Closed ends.
     :param transl_table: Translation table (11)
     """
+    if Path(train_file).exists():
+        os.remove(train_file)
+
     cmd = [
         prodigal_bin,
         '-i', str(genome),
