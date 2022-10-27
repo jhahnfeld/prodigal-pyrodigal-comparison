@@ -1,3 +1,0 @@
-genome	strand	prodigal_start	prodigal_stop	prodigal_edge	pyrodigal_start	pyrodigal_stop	pyrodigal_edge
-GCF_000008865	1	1957778	1957987	False	1957706	1957987	False
-GCF_000008865	-1	2223387	2223596	False			

@@ -99,8 +99,7 @@ wget -i test_genomes.txt -P /some/path/
 
 
 ## Results
-The results (closed and open) in the results directory were created using Prodigal (commit 31b300a99a39964893057128ea10338e9a26bd6c, branch GoogleImport) 
-and Pyrodigal v2.0.0-rc.3.
+Since Pyrodigal v2.0.0-rc.3 there are no more mismatches compared to Prodigal (commit 31b300a99a39964893057128ea10338e9a26bd6c, branch GoogleImport).
 
 
 ## License
